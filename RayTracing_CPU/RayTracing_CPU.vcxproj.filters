@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Shape">
+      <UniqueIdentifier>{8a7a026d-266d-4aa9-87e4-a9f1db06cc5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shape\Header">
+      <UniqueIdentifier>{0cbe2d61-8dca-4231-9fd6-f8cf22d546ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AccelerateStructure">
+      <UniqueIdentifier>{84a0e870-a15b-43d7-86de-1880fcd984d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{046ebf2e-a918-474f-b70c-147c549ad28c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Render">
+      <UniqueIdentifier>{556e218e-0900-4b27-864f-a67ab5e4f21b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shape\Source">
+      <UniqueIdentifier>{4f77d001-796e-487b-9c36-7fa5ef732fdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{c8105a2b-d1cf-43a0-bcdb-ba85629b4d73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Material">
+      <UniqueIdentifier>{84b757eb-8cc7-425a-ae06-ef7ff55321d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Buffer">
+      <UniqueIdentifier>{3ebcb212-6a5d-4753-adde-1786a097c341}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Input">
+      <UniqueIdentifier>{85262513-e203-4486-9956-323bff80d26c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Math">
+      <UniqueIdentifier>{a34ce134-54ac-4938-9fa2-b27cf3a53816}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Thread">
+      <UniqueIdentifier>{e9ddefdb-641b-49c9-bc6a-cb8f3edd7241}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Environment">
+      <UniqueIdentifier>{04c502df-9924-4b03-8281-90c8c2cf3754}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Loader">
+      <UniqueIdentifier>{858fbd6e-a9bd-4c5e-aae5-127c9748d8a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{85ce2067-c4ee-40f2-8855-a40538c7795f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="object.h">
+      <Filter>Shape\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Shape\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Sphere.h">
+      <Filter>Shape\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.h">
+      <Filter>Shape\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="accelerator.h">
+      <Filter>AccelerateStructure</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="loader.h">
+      <Filter>Utils\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampling.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Material</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Utils\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Utils\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="math.h">
+      <Filter>Utils\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="threading.h">
+      <Filter>Utils\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="Environment.h">
+      <Filter>Environment</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Shape\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Shape\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="accelerator.cpp">
+      <Filter>AccelerateStructure</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="loader.cpp">
+      <Filter>Utils\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="Shape.cpp">
+      <Filter>Shape\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampling.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Material</Filter>
+    </ClCompile>
+    <ClCompile Include="input.cpp">
+      <Filter>Utils\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="math.cpp">
+      <Filter>Utils\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="threading.cpp">
+      <Filter>Utils\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="Environment.cpp">
+      <Filter>Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="sample_test.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Sponza-master\textures\background.tga">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="pyramid.obj">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="test\Sponza-master\sponza.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="test\Odd scene\sphere3.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
