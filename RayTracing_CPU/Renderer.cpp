@@ -2,17 +2,11 @@
 #include <iostream>
 
 
-constexpr float cosThetaMaxSun = 0.99f;
-
-constexpr float LIGHT_INTENSITY = 0.15f / (1 - cosThetaMaxSun);
-
 constexpr float NEXT_RAY_SAMPLING_PROPABILITY = 0.9f;
 
-constexpr float CONE_PDF = 2 * pi * (1 - cosThetaMaxSun);
-
-constexpr float HEMISPHERE_PDF = 2 * pi - CONE_PDF;
-
-const vec4 SKY_BLUE = { 0.52734375f, 0.8046875f, 0.94796875f, 1.0f };
+constexpr uint8_t ENVIRONMENT_SAMPLE = 4;
+constexpr uint8_t LIGHT_SAMPLE = 2;
+constexpr uint8_t BRDF_SAMPLE = 4;
 
 
 SampleResult RIS(const Scene& scene, const Ray& ray, Packet& packet, bool debug = false) {
@@ -25,6 +19,7 @@ SampleResult RIS(const Scene& scene, const Ray& ray, Packet& packet, bool debug 
 			r.M++;
 		}
 		else {
+			sample.inv_pdf = ENVIRONMENT_SAMPLE / (ENVIRONMENT_SAMPLE / sample.inv_pdf + BRDF_SAMPLE * packet.material->samplePDF(sample.sample, ray.d, packet.normal));
 			packet.material->interact(ray, sample, packet);
 			scene.environment->interact(Ray(packet.last_hit, sample.sample), tempPacket);
 			packet.color = tempPacket.color * packet.color * sample.inv_pdf;
@@ -32,25 +27,30 @@ SampleResult RIS(const Scene& scene, const Ray& ray, Packet& packet, bool debug 
 				std::cout << "Propose: " << sample.sample.v(0) << ", " << sample.sample.v(1) << ", " << sample.sample.v(2) << "\n";
 				std::cout << "Invert pdf: " << sample.inv_pdf << " - weight: " << packet.color.norm() << "\n\n";
 			}
-
-			if (isnan(packet.color.norm())) {
-				std::cout << packet.color.norm() << "\n";
-				std::cout << sample.inv_pdf << "\n";
-
-				throw std::runtime_error("NaN detected!");
-			}
-
 			r.addSample(sample, packet.color.norm());
 		}
 	}
 
-	//for (int i = 0; i < BRDF_SAMPLE; i++) {
-	//	auto sample = packet.material->generateSample(ray, packet);
-	//	packet.material->interact(ray, sample, packet);
-	//	scene.environment->interact(Ray(packet.last_hit, sample.sample), tempPacket);
-	//	packet.color = tempPacket.color * packet.color;
-	//	r.addSample(packet.next_dir, packet.color.norm());
-	//}
+	for (int i = 0; i < BRDF_SAMPLE; i++) {
+		auto sample = packet.material->generateSample(ray, packet);
+		if (sample.sample.dot(packet.normal) < 0) {
+			r.M++;
+		}
+		else {
+			if (sample.sample.v(1) >= 1.0f) {
+				sample.sample.normalize();
+			}
+			if (sample.sample.v(1) <= -1.0f) {
+				sample.sample.normalize();
+			}
+			packet.material->interact(ray, sample, packet);
+			scene.environment->interact(Ray(packet.last_hit, sample.sample), tempPacket);
+
+			sample.inv_pdf = BRDF_SAMPLE / (ENVIRONMENT_SAMPLE * scene.environment->samplePDF(sample.sample, ray.d, packet.normal) + BRDF_SAMPLE / sample.inv_pdf);
+			packet.color = tempPacket.color * packet.color * sample.inv_pdf;
+			r.addSample(sample, packet.color.norm());
+		}
+	}
 
 	SampleResult final_sample;
 	final_sample = r.sample;
@@ -116,8 +116,18 @@ PixelData trace(const Scene& scene, const Ray& ray, const int& depth, bool debug
 
 	SampleResult sample;
 
+	int ray_count = 0;
+
 	for (int i = 0; i < depth; i++) {
 		Ray next_ray = Ray(iter_src, iter_dir);
+
+		if (ray_count >= 20) {
+			PixelData result;
+			result.boundHit = packet.aabb_check;
+			result.shapeHit = packet.shape_check;
+			result.color = { 0.0f, 0.0f, 0.0f, 1.0f };
+			return result;
+		}
 
 		if (debug) std::cout << "Bounce: " << i + 1 << "\n\n";
 
@@ -135,10 +145,12 @@ PixelData trace(const Scene& scene, const Ray& ray, const int& depth, bool debug
 			if (!packet.material->isTransparent()) {
 				sample = RIS(scene, ray, packet, false);
 				packet.material->interact(next_ray, sample, packet);
+				ray_count++;
 			}
 			else {
 				sample.inv_pdf = 1.0f;
 				packet.material->interact(next_ray, sample, packet);
+				ray_count++;
 				i--;
 			}
 
@@ -146,6 +158,7 @@ PixelData trace(const Scene& scene, const Ray& ray, const int& depth, bool debug
 	
 			if (debug) {
 				std::cout << "Hit pos: " << packet.last_hit.v(0) << ", " << packet.last_hit.v(1) << ", " << packet.last_hit.v(2) << "\n";
+				std::cout << "Material hitted: " << packet.material->name << "\n";
 				std::cout << "Incoming ray: " << iter_dir.v(0) << ", " << iter_dir.v(1) << ", " << iter_dir.v(2) << "\n";
 				std::cout << "Normal: " << packet.normal.v(0) << ", " << packet.normal.v(1) << ", " << packet.normal.v(2) << "\n";
 				std::cout << "Next ray: " << packet.next_dir.v(0) << ", " << packet.next_dir.v(1) << ", " << packet.next_dir.v(2) << "\n";
@@ -154,10 +167,19 @@ PixelData trace(const Scene& scene, const Ray& ray, const int& depth, bool debug
 				std::cout << "Current ray color: " << col.v(0) << " " << col.v(1) << " " << col.v(2) << "\n\n";
 			}
 
-			if (packet.normal.dot(packet.next_dir) > 0.01f) iter_src = packet.last_hit + packet.normal * 0.0006f;
-			else if (packet.normal.dot(packet.next_dir) < -0.01f) iter_src = packet.last_hit + packet.normal * -0.0006f;
+			if (packet.normal.dot(packet.next_dir) > 0.0001f) iter_src = packet.last_hit + packet.normal * 0.001f;
+			else if (packet.normal.dot(packet.next_dir) < -0.0001f) iter_src = packet.last_hit + packet.normal * -0.001f;
 
 			iter_dir = packet.next_dir;
+
+			if (isnan(col.norm()) || col.v(0) < 0.0f || col.v(1) < 0.0f || col.v(2) < 0.0f) {
+				std::cout << packet.color.norm() << "\n";
+				std::cout << packet.color.v(0) << " " << packet.color.v(1) << " " << packet.color.v(2) << "\n";
+				std::cout << sample.inv_pdf << "\n";
+				std::cout << packet.normal.dot(packet.next_dir) << "\n";
+
+				throw std::runtime_error("NaN detected!");
+			}
 		}
 	}
 

@@ -72,7 +72,7 @@ inline vec4 operator*(const vec4& vec, const vec4& other) {
 
 
 inline vec4 reflect(const vec4& dir, const vec4& nor) {
-	float temp = -2 * dir.dot(nor);;
+	float temp = -2 * dir.dot(nor);
 	return dir + nor * temp;
 }
 

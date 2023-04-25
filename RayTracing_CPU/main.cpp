@@ -6,6 +6,19 @@
 #include <cstdlib>
 
 
+vec3 aces_approx(vec3 v)
+{
+    v *= 0.6f;
+    float a = 2.51f;
+    float b = 0.03f;
+    float c = 2.43f;
+    float d = 0.59f;
+    float e = 0.14f;
+    vec3 result;
+    for (int i = 0; i < 3; i++) result(i) = std::clamp((v(i) * (a * v(i) + b) / (v(i) * (c * v(i) + d)) + e), 0.0f, 1.0f);
+    return result;
+}
+
 
 int main() {
     GLFWwindow* window;
@@ -15,30 +28,29 @@ int main() {
 
     Buffer frameBuffer(WINDOW_WIDHT, WINDOW_HEIGHT);
 
-    vec4 direction = { -1.0f, -1.0f, 0.0f, 1.0f };
+    vec4 direction = { -0.7f, -0.2f, 0.6f, 1.0f };
     direction.normalize();
 
-    Camera cam({ 6.0f, 1.5f, -3.0f, 1.0f }, direction, { WINDOW_WIDHT, WINDOW_HEIGHT }, 45);
+    Camera cam({ -7.0f, 8.0f, -4.0f, 1.0f }, direction, { WINDOW_WIDHT, WINDOW_HEIGHT }, 45);
 
 
     //Scene scene = loadobj("test/Odd scene/oddscene.obj");
-    Scene scene = loadobj("test/Odd scene/sphere3.obj");
+    //Scene scene = loadobj("test/Odd scene/sphere3.obj");
+    Scene scene = loadobj("test/bmw27/bmw27_cpu.obj");
     //Scene scene = loadobj("test/Sponza-master/sponza.obj");
-
-    scene.objects[2]->material = std::make_shared<Glass>();
-    scene.objects[2]->material->diffuse_color = { 0.3f, 0.9f, 0.3f,1 };
-    scene.objects[2]->material->specular_color = { 1.0f, 1.0f, 1.0f, 1 };
-    scene.objects[2]->material->refraction = 1.5f;
 
     vec4 light_direction = { 1.0f, 3.0f, 1.0f, 1.0f };
     light_direction.normalize();
-    scene.environment = std::make_shared<DefaultEnvironment>(light_direction, 0.999);
-
+    
+    //scene.environment = std::make_shared<DefaultEnvironment>(light_direction, 0.999, 10.0f);
+    //scene.environment = loadEnvHDR("skybox/syferfontein_6d_clear_puresky_4k.hdr");
+    scene.environment = loadEnvHDR("skybox/kloppenheim_05_puresky_2k.hdr");
 
     bool mouse_click = false;
     bool hold_tab = false;
 
     const float theta = 1.0f / 200.0f * pi;
+    const float speed = (scene.tree.bvh[0].bound.max(0) - scene.tree.bvh[0].bound.min(0)) / 1000.0f;
 
     vec4 up = { 0.0f, 1.0f, 0.0f, 1.0f };
     vec4 right = { 0.0f, 0.0f, 1.0f, 1.0f };
@@ -135,27 +147,27 @@ int main() {
 
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + front * 0.05f, cam.dir);
+            cam.updateCamera(cam.pos + front * speed, cam.dir);
             camera_change = true;
         }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + right * -0.05f, cam.dir);
+            cam.updateCamera(cam.pos + right * -speed, cam.dir);
             camera_change = true;
         }
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + right * 0.05f, cam.dir);
+            cam.updateCamera(cam.pos + right * speed, cam.dir);
             camera_change = true;
         }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + front * -0.05f, cam.dir);
+            cam.updateCamera(cam.pos + front * -speed, cam.dir);
             camera_change = true;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + up * 0.05f, cam.dir);
+            cam.updateCamera(cam.pos + up * speed, cam.dir);
             camera_change = true;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + up * -0.05f, cam.dir);
+            cam.updateCamera(cam.pos + up * -speed, cam.dir);
             camera_change = true;
         }
         if (camera_change) threadPool.updateCamera();
@@ -181,7 +193,15 @@ int main() {
         if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE) hold_tab = false;
 
 
-        if (showFrame == 0) glDrawPixels(width, height, GL_RGBA, GL_FLOAT, &frameBuffer.frameBuffer.front());
+        if (showFrame == 0) {
+            std::vector<vec4> newFrameBuffer;
+            newFrameBuffer.resize(frameBuffer.h * frameBuffer.w);
+            for (uint32_t i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
+                newFrameBuffer[i].v = aces_approx(frameBuffer.frameBuffer[i].v);
+                newFrameBuffer[i].w = 1.0f;
+            }
+            glDrawPixels(width, height, GL_RGBA, GL_FLOAT, &newFrameBuffer.front());
+        }
         else if (showFrame == 1) {
             uint16_t maxHit = 0;
             std::vector<vec4> newFrameBuffer;
@@ -228,5 +248,3 @@ int main() {
     glfwTerminate();
     exit(EXIT_SUCCESS);
 }
-
-

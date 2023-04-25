@@ -9,7 +9,6 @@ public:
 	Bound getBound() const;
 
 	vec4 center;
-	std::shared_ptr<Material> material;
 	float r;
 };
 

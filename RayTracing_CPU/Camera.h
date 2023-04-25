@@ -39,6 +39,7 @@ struct Camera {
 		right = left * (-2 / resolution.x);
 		down = top * (-2 / resolution.y);
 
+		dir = new_dir;
 		pos = new_pos;
 	}
 };

@@ -160,6 +160,7 @@
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="threading.h" />
     <ClInclude Include="loader.h" />
     <ClInclude Include="object.h" />
@@ -167,8 +168,11 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="2d_plot.cpp" />
     <ClCompile Include="accelerator.cpp" />
+    <ClCompile Include="brdf_test.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="envsampling_test.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="loader.cpp" />
     <ClCompile Include="main.cpp" />

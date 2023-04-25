@@ -1,4 +1,6 @@
 #include "input.h"
+#include "math.h"
+#include "threading.h"
 #include <algorithm>
 #include <iostream>
 

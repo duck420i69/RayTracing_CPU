@@ -25,6 +25,7 @@ public:
 	}
 	virtual bool isTransparent() = 0;
 	virtual SampleResult generateSample(const Ray& ray, const Packet& packet) = 0;
+	virtual float samplePDF(const vec4& wi, const vec4& wo, const vec4& normal) = 0;
 	virtual void interact(const Ray& ray, const SampleResult& sample, Packet& packet) = 0;
 };
 
@@ -43,6 +44,7 @@ class Matte : public Material {
 public:
 	bool isTransparent() { return false; }
 	SampleResult generateSample(const Ray& ray, const Packet& packet) override;
+	float samplePDF(const vec4& wi, const vec4& wo, const vec4& normal) override;
 	void interact(const Ray& ray, const SampleResult& sample, Packet& packet) override;
 };
 
@@ -50,6 +52,7 @@ class Metal : public Material {
 public:
 	bool isTransparent() { return false; }
 	SampleResult generateSample(const Ray& ray, const Packet& packet) override;
+	float samplePDF(const vec4& wi, const vec4& wo, const vec4& normal) override;
 	void interact(const Ray& ray, const SampleResult& sample, Packet& packet) override;
 };
 
@@ -57,6 +60,15 @@ class Glass : public Material {
 public:
 	bool isTransparent() { return true; }
 	SampleResult generateSample(const Ray& ray, const Packet& packet) override;
+	float samplePDF(const vec4& wi, const vec4& wo, const vec4& normal) override;
+	void interact(const Ray& ray, const SampleResult& sample, Packet& packet) override;
+};
+
+class ThinGlass : public Material {
+public:
+	bool isTransparent() { return true; }
+	SampleResult generateSample(const Ray& ray, const Packet& packet) override;
+	float samplePDF(const vec4& wi, const vec4& wo, const vec4& normal) override;
 	void interact(const Ray& ray, const SampleResult& sample, Packet& packet) override;
 };
 
@@ -64,6 +76,7 @@ class Plastic : public Material {
 public:
 	bool isTransparent() { return false; }
 	SampleResult generateSample(const Ray& ray, const Packet& packet) override;
+	float samplePDF(const vec4& wi, const vec4& wo, const vec4& normal) override;
 	void interact(const Ray& ray, const SampleResult& sample, Packet& packet) override;
 };
 
@@ -71,6 +84,7 @@ class Mirror : public Material {
 public:
 	bool isTransparent() { return true; }
 	SampleResult generateSample(const Ray& ray, const Packet& packet) override;
+	float samplePDF(const vec4& wi, const vec4& wo, const vec4& normal) override;
 	void interact(const Ray& ray, const SampleResult& sample, Packet& packet) override;
 };
 

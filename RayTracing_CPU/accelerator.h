@@ -65,6 +65,11 @@ struct BVHLinear {
 	std::vector<BVHLinearNode> bvh;
 };
 
-std::unique_ptr<BVHNode> constructBVH(std::deque<std::unique_ptr<BVHNode>> component);
+enum class BuildStrat {
+	SAH = 0,
+	TOPDOWN = 1
+};
+
+std::unique_ptr<BVHNode> constructBVH(std::deque<std::unique_ptr<BVHNode>> component, BuildStrat buildStrat);
 
 void constructLinearBVH(const std::unique_ptr<BVHNode>& root, BVHLinear& arr, size_t& iter);

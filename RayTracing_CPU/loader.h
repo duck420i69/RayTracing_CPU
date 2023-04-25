@@ -5,7 +5,6 @@
 #include <filesystem>
 #include <fstream>
 #include <string>
-#include <sstream>
 
 struct PixelInfo {
     uint8_t r, g, b, a;
@@ -26,6 +25,7 @@ public:
 	bool HasAlphaChannel() { return BitsPerPixel == 32; }
 };
 
+std::shared_ptr<EnvironmentHDR> loadEnvHDR(std::string filename);
 
 Scene loadobj(std::string filename);
 

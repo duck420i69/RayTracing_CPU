@@ -41,6 +41,7 @@ void threadWork(ThreadPool& threadPool, const Camera& cam, const Scene& object, 
 				}
 			}
 		}
+		if (threadPool.shouldStop()) break;
 		std::unique_lock<std::mutex> wait_lock(threadPool.mux_wait);
 		threadPool.cv_should_stop.wait(wait_lock);
 	}
@@ -63,7 +64,7 @@ void ThreadPool::startWork(const Camera& cam, const Scene& scene, Buffer& buffer
 bool ThreadPool::isDone() {
 	std::unique_lock<std::mutex> lg_lock(mux_work);
 	if (should_stop) return true;
-	return samplePerPixel > 100;
+	return samplePerPixel > 1000;
 }
 
 void ThreadPool::updateCamera() {
@@ -75,11 +76,16 @@ void ThreadPool::updateCamera() {
 }
 
 void ThreadPool::stopRender() {
-	should_stop = true;
+	{
+		std::unique_lock<std::mutex> wait_lock(mux_wait);
+		std::unique_lock<std::mutex> work_lock(mux_work);
+		should_stop = true;
+	}
 	cv_should_stop.notify_all();
 	for (auto& thread : m_threadPool) {
-		thread.join();
+		if (thread.joinable()) thread.join();
 	}
+	m_threadPool.clear();
 }
 
 long ThreadPool::getWork(const Camera& cam) {

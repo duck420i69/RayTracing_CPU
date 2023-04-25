@@ -1,29 +1,38 @@
 #pragma once
 
 #include "math.h"
+#include <chrono>
 
 
 constexpr float PiOver2 = pi / 2;
 constexpr float PiOver4 = pi / 4;
 constexpr float TwoPi = pi * 2;
 constexpr float FourPi = pi * 4;
-
-constexpr uint8_t ENVIRONMENT_SAMPLE = 16;
-constexpr uint8_t LIGHT_SAMPLE = 16;
-constexpr uint8_t BRDF_SAMPLE = 16;
-
+constexpr float OneOverSqrt2Pi = 0.3989422804f; // cant use sqrt so magic number instead
 struct SampleResult {
 	vec4 sample;
 	float inv_pdf;
 };
 
-inline float random0to1() {
-	static thread_local std::uniform_real_distribution<float> distribution(0.0, 1.0);
-	static thread_local std::mt19937 generator;
+inline float norm_distribution() {
+	static thread_local std::normal_distribution<float> distribution(0.0, 1.0);
+	static thread_local std::mt19937 generator(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
 	return distribution(generator);
 }
 
-inline SampleResult random_in_sphere() {
+inline double random0to1d() {
+	static thread_local std::uniform_real_distribution<double> distribution(0.0, 1.0);
+	static thread_local std::mt19937 generator(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+	return distribution(generator);
+}
+
+inline float random0to1() {
+	static thread_local std::uniform_real_distribution<float> distribution(0.0, 1.0);
+	static thread_local std::mt19937 generator(std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+	return distribution(generator);
+}
+
+inline SampleResult random_on_sphere() {
 	float z = 1.0f - 2.0f * random0to1();
 	float r = std::sqrt(1 - z * z);
 	float phi = 2.0f * pi * random0to1();
@@ -43,6 +52,11 @@ inline SampleResult random_in_cone(const float& cosThetaMax, const vec4& directi
 	result.inv_pdf = TwoPi * (1.0f - cosThetaMax);
 	if (direction.v(1) == 1.0f) {
 		result.sample = random_direction;
+		return result;
+	}
+	else if (direction.v(1) == -1.0f) {
+		result.sample = random_direction;
+		result.sample.v(1) = -result.sample.v(1);
 		return result;
 	}
 	vec4 x = direction.cross(vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -73,11 +87,15 @@ inline vec2 random_in_disk() {
 
 inline SampleResult random_cos_weight(const vec4& normal) {
 	vec2 disk;
-	do { disk = random_in_disk(); } while (disk.x * disk.x + disk.y * disk.y >= 1.0f);
+	do { disk = random_in_disk(); } while (disk.x * disk.x + disk.y * disk.y >= 0.9999999f);
 	SampleResult result;
 	result.sample = { disk.x, std::sqrt(std::max(0.0f, 1.0f - disk.x * disk.x - disk.y * disk.y)), disk.y, 1.0f };
 	result.inv_pdf = pi / result.sample.v(1);
 	if (normal.v(1) == 1.0f) return result;
+	if (normal.v(1) == -1.0f) {
+		result.sample.v(1) = -result.sample.v(1);
+		return result;
+	}
 	vec4 x = normal.cross(vec4(0.0f, 1.0f, 0.0f, 1.0f));
 	vec4 z = normal.cross(x);
 	x.normalize();
@@ -86,6 +104,25 @@ inline SampleResult random_cos_weight(const vec4& normal) {
 	return result;
 }
 
+//inline SampleResult random_around_direction(const vec4& direction) {
+//	float theta = norm_distribution();
+//	float phi = random0to1() * TwoPi;
+//
+//	SampleResult result;
+//	result.sample = 
+//	result.inv_pdf = OneOverSqrt2Pi * exp(-theta * theta / 2.0f);
+//}
+
+inline SampleResult sphere_texture_sampling(float theta_min, float theta_max, float phi_min, float phi_max) {
+	float u = random0to1();
+	float cosTheta = cos(theta_min) - u * (cos(theta_min) - cos(theta_max));
+	float sinTheta = std::sqrt(1.0f - cosTheta * cosTheta);
+	float phi = (phi_max - phi_min) * random0to1() + phi_min;
+	SampleResult result;
+	result.inv_pdf = (cos(theta_min) - cos(theta_max)) * (phi_max - phi_min);
+	result.sample = { sinTheta * std::cos(phi), cosTheta, sinTheta * std::sin(phi), 1.0f };
+	return result;
+}
 
 class Reservoir {
 public:

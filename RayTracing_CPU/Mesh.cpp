@@ -145,10 +145,7 @@ void Object::buildTree() {
 	for (long i = 0; i < mesh.size(); i++) {
 		nodes.emplace_back(std::make_unique<BVHNode>(mesh[i].getBound(), i));
 	}
-	std::sort(nodes.begin(), nodes.end(), [](const std::unique_ptr<BVHNode>& b1, const std::unique_ptr<BVHNode>& b2) -> bool {
-		return b1->centroid(0) < b2->centroid(0);
-		});
-	auto root = constructBVH(std::move(nodes));
+	auto root = constructBVH(std::move(nodes), BuildStrat::TOPDOWN);
 	size_t i = 0;
 	constructLinearBVH(root, tree, i);
 }

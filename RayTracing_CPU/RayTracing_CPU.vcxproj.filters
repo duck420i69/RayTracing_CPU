@@ -103,6 +103,9 @@
     <ClInclude Include="Environment.h">
       <Filter>Environment</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Utils\Loader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Mesh.cpp">
@@ -148,6 +151,15 @@
       <Filter>Environment</Filter>
     </ClCompile>
     <ClCompile Include="sample_test.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="envsampling_test.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="brdf_test.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="2d_plot.cpp">
       <Filter>Main</Filter>
     </ClCompile>
   </ItemGroup>
