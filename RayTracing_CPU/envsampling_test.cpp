@@ -1,11 +1,11 @@
 #include "threading.h"
-#include "loader.h"
+#include "loader/loader.h"
 #include "input.h"
 
 #include "GLFW/GLFW3.h"
 #include <cstdlib>
 
-/*
+#if 0
 int main() {
 	auto environment = loadEnvHDR("skybox/syferfontein_6d_clear_puresky_4k.hdr");
 	float epsilon = 0.0000001f;
@@ -36,7 +36,7 @@ int main() {
 		}
 	}
 	color = color * (1.0f / (environment->height * environment->width));
-	std::cout << color.v(0) << " " << color.v(1) << " " << color.v(2) << "\n";
+	std::cout << color.x() << " " << color.y() << " " << color.z() << "\n";
 
 	color = { 0,0,0,0 };
 
@@ -49,7 +49,7 @@ int main() {
 		color = color + packet.color * sample.inv_pdf * std::max(random_direction.dot({ 0.0f, 1.0f, 0.0f, 1.0f }), 0.0f);
 	}
 	color = color * (1.0 / 1000000.0);
-	std::cout << color.v(0) << " " << color.v(1) << " " << color.v(2) << "\n";
+	std::cout << color.x() << " " << color.y() << " " << color.z() << "\n";
 
 	color = { 0,0,0,0 };
 
@@ -62,7 +62,7 @@ int main() {
 		color = color + packet.color * sample.inv_pdf * std::max(random_direction.dot({ 0.0f, 1.0f, 0.0f, 1.0f }), 0.0f);
 	}
 	color = color * (1.0 / 1000000.0);
-	std::cout << color.v(0) << " " << color.v(1) << " " << color.v(2) << "\n";
+	std::cout << color.x() << " " << color.y() << " " << color.z() << "\n";
 
 	color = { 0,0,0,0 };
 
@@ -75,6 +75,6 @@ int main() {
 		color = color + packet.color * sample.inv_pdf * std::max(random_direction.dot({ 0.0f, 1.0f, 0.0f, 1.0f }), 0.0f);
 	}
 	color = color * (1.0 / 1000000.0);
-	std::cout << color.v(0) << " " << color.v(1) << " " << color.v(2) << "\n";
+	std::cout << color.x() << " " << color.y() << " " << color.z() << "\n";
 }
-*/
+#endif

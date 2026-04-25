@@ -109,17 +109,17 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\eigen-3.4.0;C:\Users\LENOVO\source\repos\RayTracing\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EIGEN_DIR);$(VULKAN_SDK)\Include;$(GLFW_LIB)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ShowIncludes>false</ShowIncludes>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\LENOVO\source\repos\RayTracing\glfw-3.3.8.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(GLFW_LIB)\lib-vc2022;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -132,7 +132,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\eigen-3.4.0;C:\Users\LENOVO\source\repos\RayTracing\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EIGEN_DIR);$(VULKAN_SDK)\Include;$(ProjectDir)dependency\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
@@ -143,48 +143,64 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\LENOVO\source\repos\RayTracing\glfw-3.3.8.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VULKAN_SDK)\Lib;$(ProjectDir)dependency\glfw-3.3.8.bin.WIN64\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="accelerator.h" />
+    <ClInclude Include="accelerator\accelerator.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="debug.h" />
+    <ClInclude Include="integrater\DebugRenderer.h" />
     <ClInclude Include="Environment.h" />
-    <ClInclude Include="Material.h" />
+    <ClInclude Include="file.h" />
+    <ClInclude Include="material\GGX.h" />
+    <ClInclude Include="material\Material.h" />
+    <ClInclude Include="material\MaterialBuilder.h" />
+    <ClInclude Include="material\Matte.h" />
+    <ClInclude Include="material\Metal.h" />
     <ClInclude Include="Ray.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="Sampling.h" />
-    <ClInclude Include="Shape.h" />
-    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="integrater\Renderer.h" />
+    <ClInclude Include="integrater\Sampling.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="object\Mesh.h" />
     <ClInclude Include="input.h" />
-    <ClInclude Include="Sphere.h" />
-    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="loader\SceneLoader.h" />
+    <ClInclude Include="object\Sphere.h" />
     <ClInclude Include="threading.h" />
-    <ClInclude Include="loader.h" />
-    <ClInclude Include="object.h" />
-    <ClInclude Include="math.h" />
+    <ClInclude Include="loader\loader.h" />
+    <ClInclude Include="object\object.h" />
+    <ClInclude Include="rtmath.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="2d_plot.cpp" />
-    <ClCompile Include="accelerator.cpp" />
+    <ClCompile Include="accelerator\accelerator.cpp" />
     <ClCompile Include="brdf_test.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="debug.cpp" />
+    <ClCompile Include="integrater\DebugRenderer.cpp" />
     <ClCompile Include="envsampling_test.cpp" />
+    <ClCompile Include="file.cpp" />
     <ClCompile Include="input.cpp" />
-    <ClCompile Include="loader.cpp" />
+    <ClCompile Include="loader\loader.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Material.cpp" />
-    <ClCompile Include="math.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="Sampling.cpp" />
+    <ClCompile Include="material\GGX.cpp" />
+    <ClCompile Include="material\Material.cpp" />
+    <ClCompile Include="material\MaterialBuilder.cpp" />
+    <ClCompile Include="material\Matte.cpp" />
+    <ClCompile Include="material\Metal.cpp" />
+    <ClCompile Include="rtmath.cpp" />
+    <ClCompile Include="object\Mesh.cpp" />
+    <ClCompile Include="integrater\Renderer.cpp" />
+    <ClCompile Include="integrater\Sampling.cpp" />
+    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Environment.cpp" />
     <ClCompile Include="sample_test.cpp" />
-    <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="object\Sphere.cpp" />
     <ClCompile Include="threading.cpp" />
   </ItemGroup>
   <ItemGroup>

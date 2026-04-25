@@ -1,11 +1,11 @@
 #pragma once
 
-#include <thread>
-#include <mutex>
-#include "Camera.h"
-#include <iostream>
+#include "Buffer.h"
+#include "Scene.h"
 
-constexpr int PIXEL_PER_THREAD = 20;
+#include <mutex>
+#include <thread>
+
 
 class ThreadPool {
 public:
@@ -23,19 +23,19 @@ public:
 	int getSamplePerPixel() { return samplePerPixel; }
 	bool shouldStop() { return should_stop; }
 
-	void startWork(const Camera& cam, const Scene& scene, Buffer& buffer);
-	long getWork(const Camera& cam);
+	void startWork(const Scene& scene, Buffer& buffer);
+	long getWork();
 	bool isDone();
 
 	void updateCamera();
-
 	void stopRender();
 
-	friend void threadWork(ThreadPool& threadPool, const Camera& cam, const Scene& object, Buffer& buffer);
+	friend void threadWork(ThreadPool& threadPool, const Scene& object, Buffer& buffer);
 private:
 	std::vector<std::thread> m_threadPool;
 	std::mutex mux_work;
 	std::mutex mux_wait;
+	std::mutex mux_console;
 	std::condition_variable cv_should_stop;
 	uint32_t debug_position;
 	uint32_t current_work, total_work;
@@ -45,4 +45,8 @@ private:
 	bool should_stop;
 };
 
-void threadWork(ThreadPool& threadPool, const Camera& cam, const Scene& object, Buffer& buffer);
+
+void threadWork(ThreadPool& threadPool, const Scene& object, Buffer& buffer);
+
+
+void printDebug(std::string str);

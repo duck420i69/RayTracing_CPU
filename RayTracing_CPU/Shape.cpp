@@ -1,7 +1,5 @@
-#include "Shape.h"
+#include "Scene.h"
 #include <iostream>
-
-constexpr float INVERT_PI = 1 / 3.14159265359;
 
 constexpr float LIGHT_INTENSITY = 1.0f;
 

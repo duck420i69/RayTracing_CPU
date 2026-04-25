@@ -1,11 +1,12 @@
-#include "threading.h"
-#include "loader.h"
 #include "input.h"
+#include "threading.h"
+
+#include "loader/loader.h"
+#include "integrater/DebugRenderer.h"
 
 #include "GLFW/GLFW3.h"
-#include <cstdlib>
 
-
+#if 1
 vec3 aces_approx(vec3 v)
 {
     v *= 0.6f;
@@ -22,42 +23,50 @@ vec3 aces_approx(vec3 v)
 
 int main() {
     GLFWwindow* window;
-  
-    float WINDOW_WIDHT = 1200;
-    float WINDOW_HEIGHT = 800;
+
+    float WINDOW_WIDHT = 800;
+    float WINDOW_HEIGHT = 600;
 
     Buffer frameBuffer(WINDOW_WIDHT, WINDOW_HEIGHT);
+    Buffer presentBuffer(WINDOW_WIDHT, WINDOW_HEIGHT);
+    presentBuffer.boundHitBuffer.resize(0);
+    presentBuffer.shapeHitBuffer.resize(0);
 
-    vec4 direction = { -0.7f, -0.2f, 0.6f, 1.0f };
+    vec3 direction = { 1.0f, 0.0f, 0.0f };
     direction.normalize();
 
-    Camera cam({ -7.0f, 8.0f, -4.0f, 1.0f }, direction, { WINDOW_WIDHT, WINDOW_HEIGHT }, 45);
-
-
-    //Scene scene = loadobj("test/Odd scene/oddscene.obj");
-    //Scene scene = loadobj("test/Odd scene/sphere3.obj");
-    Scene scene = loadobj("test/bmw27/bmw27_cpu.obj");
+    //Scene scene = loadobj("test/Odd scene/house.obj");
+    Scene scene = loadobj("test/Odd scene/sphere3.obj");
+    //Scene scene = loadobj("test/Odd scene/monke.obj");
+    //Scene scene = loadobj("test/bmw27/bmw27_cpu.obj");
     //Scene scene = loadobj("test/Sponza-master/sponza.obj");
 
-    vec4 light_direction = { 1.0f, 3.0f, 1.0f, 1.0f };
+    scene.camera = Camera({ 0.0f, 1.0f, 0.0f }, direction, { WINDOW_WIDHT, WINDOW_HEIGHT }, 45);
+
+    /*Scene scene;
+    std::deque<std::unique_ptr<BVHNode>> bvh;
+    MaterialBuilder builder;
+    auto sphere = std::make_shared<Sphere>();
+    sphere->center = { 0.0f, 0.0f, 0.0f };
+    sphere->r = 2.0f;
+    sphere->material = builder.setDiffuseColor({ 1.0f, 1.0f, 1.0f, 1.0f })
+        .setSpecularColor({ 1.0f, 1.0f, 1.0f, 1.0f })
+        .setShininess(1000.0f)
+        .setRefraction(1.5f)
+        .setName("GGX").build();
+    bvh.emplace_back(std::make_unique<BVHNode>(sphere->getBound(), scene.objects.size()));
+    scene.objects.emplace_back(sphere);
+    size_t i = 0;
+    constructLinearBVH(constructBVH(std::move(bvh), BuildStrat::TOPDOWN), scene.tree, i);*/
+
+    vec3 light_direction = { 1.0f, 3.0f, 1.0f };
     light_direction.normalize();
-    
-    //scene.environment = std::make_shared<DefaultEnvironment>(light_direction, 0.999, 10.0f);
+
+    //scene.environment = std::make_shared<DefaultEnvironment>(light_direction, 0.99f, 10.0f);
+    //scene.environment = std::make_shared<DefaultEnvironment>(light_direction, -1.0f, 10.0f);
     //scene.environment = loadEnvHDR("skybox/syferfontein_6d_clear_puresky_4k.hdr");
     scene.environment = loadEnvHDR("skybox/kloppenheim_05_puresky_2k.hdr");
-
-    bool mouse_click = false;
-    bool hold_tab = false;
-
-    const float theta = 1.0f / 200.0f * pi;
-    const float speed = (scene.tree.bvh[0].bound.max(0) - scene.tree.bvh[0].bound.min(0)) / 1000.0f;
-
-    vec4 up = { 0.0f, 1.0f, 0.0f, 1.0f };
-    vec4 right = { 0.0f, 0.0f, 1.0f, 1.0f };
-    vec4 front = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-
-    int showFrame = 0;
+    //scene.environment = loadEnvHDR("skybox/san_giuseppe_bridge_4k.hdr");
 
     if (!glfwInit())
         exit(EXIT_FAILURE);
@@ -73,16 +82,26 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
     ThreadPool threadPool;
-    threadPool.startWork(cam, scene, frameBuffer);
+    threadPool.startWork(scene, frameBuffer);
+
+    InputData input;
+
+    input.movementSpeed = (scene.tree.bvh[0].bound.max(0) - scene.tree.bvh[0].bound.min(0)) / 1000.0f;
+    input.rotationSpeed = 1.0f / 200.0f * pi;
+    input.scene = &scene;
+    input.showFrame = 0;
+    input.threadPool = &threadPool;
+
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetWindowUserPointer(window, &input);
 
     auto start = std::chrono::system_clock::now();
-    
+
     while (!glfwWindowShouldClose(window)) {
         float ratio;
         int width, height;
@@ -99,143 +118,49 @@ int main() {
 
         glfwSetWindowTitle(window, ("Ray Tracing " + std::to_string(duration.count()) + " ms").c_str());
 
-        bool camera_change = false;
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-            vec4 rotation_matrix[3] = { 
-                {std::cos(theta), 0.0f, -std::sin(theta), 0.0f},
-                {0.0f, 1.0f, 0.0f, 0.0f},
-                {std::sin(theta), 0.0f, std::cos(theta), 0.0f} 
-            };
-            cam.dir = rotation_matrix[0] * cam.dir.v(0) + rotation_matrix[1] * cam.dir.v(1) + rotation_matrix[2] * cam.dir.v(2);
-            cam.updateCamera(cam.pos, cam.dir);
-            camera_change = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-            vec4 rotation_matrix[3] = {
-                {std::cos(-theta), 0.0f, -std::sin(-theta), 0.0f},
-                {0.0f, 1.0f, 0.0f, 0.0f},
-                {std::sin(-theta), 0.0f, std::cos(-theta), 0.0f}
-            };
-            cam.dir = rotation_matrix[0] * cam.dir.v(0) + rotation_matrix[1] * cam.dir.v(1) + rotation_matrix[2] * cam.dir.v(2);
-            cam.updateCamera(cam.pos, cam.dir);
-            camera_change = true;
-        }
+        if (input.showFrame == 0) {
+            uint32_t i = 0;
+            for (i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
+                presentBuffer.frameBuffer[i].v = aces_approx(frameBuffer.frameBuffer[i].v);
+                presentBuffer.frameBuffer[i].w = 1.0f;
+            }
 
-        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-            cam.dir.v(1) += 0.02f * std::sqrt(1.0f - cam.dir.v(1) * cam.dir.v(1));
-            if (cam.dir.v(1) > 0.999f) cam.dir.v(1) = 0.999f;
-            float c = std::sqrt((1.0f - cam.dir.v(1) * cam.dir.v(1)) / (cam.dir.v(0) * cam.dir.v(0) + cam.dir.v(2) * cam.dir.v(2)));
-            cam.dir.v(0) *= c;
-            cam.dir.v(2) *= c;
-            cam.updateCamera(cam.pos, cam.dir);
-            camera_change = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-            cam.dir.v(1) -= 0.02f * std::sqrt(1.0f - cam.dir.v(1) * cam.dir.v(1));
-            if (cam.dir.v(1) < -0.999f) cam.dir.v(1) = -0.999f;
-            float c = std::sqrt((1.0f - cam.dir.v(1) * cam.dir.v(1)) / (cam.dir.v(0) * cam.dir.v(0) + cam.dir.v(2) * cam.dir.v(2)));
-            cam.dir.v(0) *= c;
-            cam.dir.v(2) *= c;
-            cam.updateCamera(cam.pos, cam.dir);
-            camera_change = true;
-        }
-
-
-        right = up.cross(cam.dir * -1.0f);
-        right.normalize();
-        front = up.cross(right);
-
-
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + front * speed, cam.dir);
-            camera_change = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + right * -speed, cam.dir);
-            camera_change = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + right * speed, cam.dir);
-            camera_change = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + front * -speed, cam.dir);
-            camera_change = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + up * speed, cam.dir);
-            camera_change = true;
-        }
-        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            cam.updateCamera(cam.pos + up * -speed, cam.dir);
-            camera_change = true;
-        }
-        if (camera_change) threadPool.updateCamera();
-        
-        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS && !hold_tab) {
-            hold_tab = true;
-            showFrame = (showFrame + 1) % 3;
-            if (showFrame == 1) {
-                uint16_t maxHit = 0;
-                for (uint32_t i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
-                    maxHit = std::max(maxHit, frameBuffer.boundHitBuffer[i]);
+            if (input.rayPaths.size() > 0) {
+                for (i = 0; i < input.rayPaths.size() - 1; i++) {
+                    drawLine(
+                        presentBuffer, scene.camera, 
+                        input.rayPaths[i].o, input.rayPaths[i + 1].o, 
+                        { 1.0f, 0.0f, 1.0f, 1.0f });
                 }
-                std::cout << "Showing Frame: Bounding Box Hit, Max hitted: " << maxHit << "\n\n";
-            }
-            else if (showFrame == 2) {
-                uint16_t maxHit = 0;
-                for (uint32_t i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
-                    maxHit = std::max(maxHit, frameBuffer.shapeHitBuffer[i]);
-                }
-                std::cout << "Showing Frame: Shape Check, Max hitted: " << maxHit << "\n\n";
-            }
-        }
-        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_RELEASE) hold_tab = false;
+                drawLine(
+                    presentBuffer, scene.camera, 
+                    input.rayPaths[i].o, 
+                    input.rayPaths[i].o + input.rayPaths[i].d * 1000.0f, 
+                    { 1.0f, 1.0f, 1.0f, 1.0f });
 
-
-        if (showFrame == 0) {
-            std::vector<vec4> newFrameBuffer;
-            newFrameBuffer.resize(frameBuffer.h * frameBuffer.w);
-            for (uint32_t i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
-                newFrameBuffer[i].v = aces_approx(frameBuffer.frameBuffer[i].v);
-                newFrameBuffer[i].w = 1.0f;
             }
-            glDrawPixels(width, height, GL_RGBA, GL_FLOAT, &newFrameBuffer.front());
+            glDrawPixels(width, height, GL_RGBA, GL_FLOAT, &presentBuffer.frameBuffer.front());
         }
-        else if (showFrame == 1) {
+        else if (input.showFrame == 1) {
             uint16_t maxHit = 0;
-            std::vector<vec4> newFrameBuffer;
-            newFrameBuffer.resize(frameBuffer.h * frameBuffer.w);
             for (uint32_t i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
                 maxHit = std::max(maxHit, frameBuffer.boundHitBuffer[i]);
             }
             for (uint32_t i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
-                newFrameBuffer[i] = { frameBuffer.boundHitBuffer[i] / (float)maxHit, 1.0f - frameBuffer.boundHitBuffer[i] / (float)maxHit, 0.0f, 1.0f };
+                presentBuffer.frameBuffer[i] = { frameBuffer.boundHitBuffer[i] / (float)maxHit, 1.0f - frameBuffer.boundHitBuffer[i] / (float)maxHit, 0.0f, 1.0f };
             }
-            glDrawPixels(width, height, GL_RGBA, GL_FLOAT, &newFrameBuffer.front());
+            glDrawPixels(width, height, GL_RGBA, GL_FLOAT, &presentBuffer.frameBuffer.front());
         }
-        else if (showFrame == 2) {
+        else if (input.showFrame == 2) {
             uint16_t maxHit = 0;
-            std::vector<vec4> newFrameBuffer;
-            newFrameBuffer.resize(frameBuffer.h * frameBuffer.w);
             for (uint32_t i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
                 maxHit = std::max(maxHit, frameBuffer.shapeHitBuffer[i]);
             }
             for (uint32_t i = 0; i < frameBuffer.h * frameBuffer.w; i++) {
-                newFrameBuffer[i] = { frameBuffer.shapeHitBuffer[i] / (float)maxHit, 1.0f - frameBuffer.shapeHitBuffer[i] / (float)maxHit, 0.0f, 1.0f };
+                presentBuffer.frameBuffer[i] = { frameBuffer.shapeHitBuffer[i] / (float)maxHit, 1.0f - frameBuffer.shapeHitBuffer[i] / (float)maxHit, 0.0f, 1.0f };
             }
-            glDrawPixels(width, height, GL_RGBA, GL_FLOAT, &newFrameBuffer.front());
+            glDrawPixels(width, height, GL_RGBA, GL_FLOAT, &presentBuffer.frameBuffer.front());
         }
-
-
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS && !mouse_click) {
-            mouse_click = true;
-            PixelData pixel = shootRay(scene, cam, get_buffer_pos(WINDOW_WIDHT, WINDOW_HEIGHT), 10, true);
-            vec4& col = pixel.color;
-            std::cout << "Final color: " << col.v(0) << " " << col.v(1) << " " << col.v(2) << "\n\n\n";
-        }
-        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_RELEASE) mouse_click = false;
-
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -248,3 +173,4 @@ int main() {
     glfwTerminate();
     exit(EXIT_SUCCESS);
 }
+#endif

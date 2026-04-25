@@ -38,9 +38,6 @@
     <Filter Include="Utils\Math">
       <UniqueIdentifier>{a34ce134-54ac-4938-9fa2-b27cf3a53816}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utils\Thread">
-      <UniqueIdentifier>{e9ddefdb-641b-49c9-bc6a-cb8f3edd7241}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Environment">
       <UniqueIdentifier>{04c502df-9924-4b03-8281-90c8c2cf3754}</UniqueIdentifier>
     </Filter>
@@ -50,37 +47,46 @@
     <Filter Include="Main">
       <UniqueIdentifier>{85ce2067-c4ee-40f2-8855-a40538c7795f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils\Debug">
+      <UniqueIdentifier>{71f9b5a6-119d-4496-9b29-508b25a18450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Thread">
+      <UniqueIdentifier>{e9ddefdb-641b-49c9-bc6a-cb8f3edd7241}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Material\Header">
+      <UniqueIdentifier>{ed21eb02-486a-488a-b5d5-7ab11f526daa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Material\Source">
+      <UniqueIdentifier>{b7d0d4f6-cbf9-4803-b493-a57b0be585a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="object.h">
+    <ClInclude Include="object\object.h">
       <Filter>Shape\Header</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
+    <ClInclude Include="object\Mesh.h">
       <Filter>Shape\Header</Filter>
     </ClInclude>
-    <ClInclude Include="Sphere.h">
+    <ClInclude Include="object\Sphere.h">
       <Filter>Shape\Header</Filter>
     </ClInclude>
-    <ClInclude Include="Shape.h">
+    <ClInclude Include="Scene.h">
       <Filter>Shape\Header</Filter>
     </ClInclude>
-    <ClInclude Include="accelerator.h">
+    <ClInclude Include="accelerator\accelerator.h">
       <Filter>AccelerateStructure</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="loader.h">
+    <ClInclude Include="loader\loader.h">
       <Filter>Utils\Loader</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
+    <ClInclude Include="integrater\Renderer.h">
       <Filter>Render</Filter>
     </ClInclude>
-    <ClInclude Include="Sampling.h">
+    <ClInclude Include="integrater\Sampling.h">
       <Filter>Render</Filter>
-    </ClInclude>
-    <ClInclude Include="Material.h">
-      <Filter>Material</Filter>
     </ClInclude>
     <ClInclude Include="Ray.h">
       <Filter>Utils</Filter>
@@ -94,58 +100,82 @@
     <ClInclude Include="input.h">
       <Filter>Utils\Input</Filter>
     </ClInclude>
-    <ClInclude Include="math.h">
+    <ClInclude Include="rtmath.h">
       <Filter>Utils\Math</Filter>
     </ClInclude>
     <ClInclude Include="threading.h">
-      <Filter>Utils\Thread</Filter>
+      <Filter>Thread</Filter>
     </ClInclude>
     <ClInclude Include="Environment.h">
       <Filter>Environment</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image.h">
+    <ClInclude Include="debug.h">
+      <Filter>Utils\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="integrater\DebugRenderer.h">
+      <Filter>Render</Filter>
+    </ClInclude>
+    <ClInclude Include="file.h">
       <Filter>Utils\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="loader\SceneLoader.h">
+      <Filter>Utils\Loader</Filter>
+    </ClInclude>
+    <ClInclude Include="material\GGX.h">
+      <Filter>Material\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="material\Material.h">
+      <Filter>Material\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="material\MaterialBuilder.h">
+      <Filter>Material\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="material\Matte.h">
+      <Filter>Material\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="material\Metal.h">
+      <Filter>Material\Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Mesh.cpp">
+    <ClCompile Include="object\Mesh.cpp">
       <Filter>Shape\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Sphere.cpp">
+    <ClCompile Include="object\Sphere.cpp">
       <Filter>Shape\Source</Filter>
     </ClCompile>
-    <ClCompile Include="accelerator.cpp">
+    <ClCompile Include="accelerator\accelerator.cpp">
       <Filter>AccelerateStructure</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="loader.cpp">
+    <ClCompile Include="loader\loader.cpp">
       <Filter>Utils\Loader</Filter>
     </ClCompile>
     <ClCompile Include="Shape.cpp">
       <Filter>Shape\Source</Filter>
     </ClCompile>
-    <ClCompile Include="Renderer.cpp">
+    <ClCompile Include="integrater\Renderer.cpp">
       <Filter>Render</Filter>
     </ClCompile>
-    <ClCompile Include="Sampling.cpp">
+    <ClCompile Include="integrater\Sampling.cpp">
       <Filter>Render</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="Material.cpp">
-      <Filter>Material</Filter>
-    </ClCompile>
     <ClCompile Include="input.cpp">
       <Filter>Utils\Input</Filter>
     </ClCompile>
-    <ClCompile Include="math.cpp">
+    <ClCompile Include="rtmath.cpp">
       <Filter>Utils\Math</Filter>
     </ClCompile>
     <ClCompile Include="threading.cpp">
-      <Filter>Utils\Thread</Filter>
+      <Filter>Thread</Filter>
     </ClCompile>
     <ClCompile Include="Environment.cpp">
       <Filter>Environment</Filter>
@@ -161,6 +191,33 @@
     </ClCompile>
     <ClCompile Include="2d_plot.cpp">
       <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="debug.cpp">
+      <Filter>Utils\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="integrater\DebugRenderer.cpp">
+      <Filter>Render</Filter>
+    </ClCompile>
+    <ClCompile Include="file.cpp">
+      <Filter>Utils\Loader</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Shape\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="material\Matte.cpp">
+      <Filter>Material\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="material\MaterialBuilder.cpp">
+      <Filter>Material\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="material\Metal.cpp">
+      <Filter>Material\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="material\GGX.cpp">
+      <Filter>Material\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="material\Material.cpp">
+      <Filter>Material\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
